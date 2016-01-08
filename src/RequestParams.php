@@ -8,7 +8,7 @@ class RequestParams {
     unset($params['q']);
     $this->params = $params + array(
       'limit' => 10,
-      'name_display' => CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT,
+      'name_display' => RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT,
       'hash' => '',
     );
   }

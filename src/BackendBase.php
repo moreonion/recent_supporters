@@ -37,13 +37,13 @@ abstract class BackendBase {
     $supporters = array();
 
     // resolve "default" name display
-    if ((int)$name_display === CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT) {
-      $name_display_default = variable_get('recent_supporters_name_display_default', CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL);
-      // if $name_display_default is still CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT
+    if ((int)$name_display === RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT) {
+      $name_display_default = variable_get('recent_supporters_name_display_default', RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL);
+      // if $name_display_default is still RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT
       // (e.g. it was explicitly set in the variable) we override it manually, as
       // 'default' would make no sense here any more
-      if ($name_display_default === CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT) {
-        $name_display_default = CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL;
+      if ($name_display_default === RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT) {
+        $name_display_default = RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL;
       }
 
       $name_display = $name_display_default;
@@ -52,13 +52,13 @@ abstract class BackendBase {
     foreach ($result as $item) {
       $supporter = (array) $item;
 
-      // no CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT any more in $name_display
+      // no RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT any more in $name_display
       switch ($name_display) {
-        case CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FIRST_ONLY:
+        case RECENT_SUPPORTERS_NAME_DISPLAY_FIRST_ONLY:
           // set last_name to empty string
           $supporter['last_name'] = "";
           break;
-        case CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL:
+        case RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL:
           // substitute last_name with initial
           // convert every component of last_name to it's first letter
           // also last names with van, von, de, ... and those consisting
@@ -69,7 +69,7 @@ abstract class BackendBase {
             $supporter['last_name'] = implode(' ', array_map('_recent_supporters_strip_callback', $ln_array));
           }
           break;
-        case CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FULL:
+        case RECENT_SUPPORTERS_NAME_DISPLAY_FULL:
         default:
           // nothing to do (full name loaded already
           break;

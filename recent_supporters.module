@@ -1,21 +1,21 @@
 <?php
 
 require_once DRUPAL_ROOT . '/includes/locale.inc';
+require_once dirname(__FILE__) . '/recent_supporters.api.php';
 
-define ('CAMPAIGNION_RECENT_SUPPORTENODE_URL_PART', 'recent-supporters');
-define ('CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT', 0);
-define ('CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FULL', 1);
-define ('CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL', 2);
-define ('CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FIRST_ONLY', 3);
+define ('RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT', 0);
+define ('RECENT_SUPPORTERS_NAME_DISPLAY_FULL', 1);
+define ('RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL', 2);
+define ('RECENT_SUPPORTERS_NAME_DISPLAY_FIRST_ONLY', 3);
 
 use \Drupal\recent_supporters\Loader;
 
 function _recent_supporters_name_display_options() {
   return array(
-    CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT => t('Default'),
-    CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FULL => t('Full name'),
-    CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL => t('First name and initial'),
-    CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FIRST_ONLY => t('First name only'),
+    RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT => t('Default'),
+    RECENT_SUPPORTERS_NAME_DISPLAY_FULL => t('Full name'),
+    RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL => t('First name and initial'),
+    RECENT_SUPPORTERS_NAME_DISPLAY_FIRST_ONLY => t('First name only'),
   );
 }
 
@@ -30,7 +30,7 @@ function recent_supporters_settings() {
     'cycle_toggle'   => 0,
     'country_toggle' => 1,
     'comment_toggle' => 0,
-    'name_display'   => CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT,
+    'name_display'   => RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT,
   );
   return $saved_settings;
 }
@@ -541,7 +541,7 @@ function recent_supporters_field_widget_form(&$form, &$form_state, $field, $inst
       'cycle_toggle' => 0,
       'country_toggle' => 1,
       'comment_toggle' => 0,
-      'name_display' => CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT,
+      'name_display' => RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT,
     ),
   );
 
