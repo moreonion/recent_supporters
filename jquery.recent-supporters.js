@@ -190,7 +190,7 @@
       if (settings.showCountry) {
         var countryCode = supporter.country ? supporter.country.toLowerCase() : "no-cc";
         var countryName = supporter.country in settings.countries ? settings.countries[supporter.country] : '';
-        $li.prepend('<span title="'+countryName+'" class="country flag flag-'+countryCode+'">'+supporter.country+'</span> ');
+        $li.prepend('<span title="'+countryName+'" class="country flag flag-'+countryCode+'">'+countryCode+'</span> ');
       }
       if (settings.showComment) {
         $li.append('<span class="comment">' + supporter.comment + '</span> ')

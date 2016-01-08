@@ -467,12 +467,13 @@ function theme_recent_supporters($variables) {
       }
       $output .= "<li class=\"supporter clearfix $action_type\">\n";
 
-      if ($show_country && isset($supporter['country'])) {
-        $classes = empty($supporter['country']) ? 'no-cc' : "flag-".strtolower(drupal_clean_css_identifier($supporter['country']));
-        $country_name = (isset($supporter['country']) && isset($countries[$supporter['country']])) ? $countries[$supporter['country']] : '';
+      if ($show_country) {
+        $classes = "flag-".strtolower(drupal_clean_css_identifier($country_code));
+        $country_code = empty($supporter['country']) ? 'no-cc' : $supporter['country'];
+        $country_name = $country_code == 'no-cc' ? '' : $countries[$country_code];
         $output .= "<span title=\"".t($country_name)
           ."\" class=\"country flag " . $classes ."\">";
-        $output .= $supporter['country'];
+        $output .= $country_code;
         $output .= "</span>\n";
       }
       if ($variables['all_actions']) {
