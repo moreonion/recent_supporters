@@ -292,21 +292,20 @@ function _recent_supporters_block_recent_supporters() {
  */
 function _recent_supporters_get_types_defaults($lang_code = NULL) {
   global $language;
-  static $action_type_info;
-  if (!isset($action_type_info)) {
-    $action_type_info = \Drupal\campaignion_action\TypeBase::typesInfo();
-  }
+
   $saved_lang = $language;
   if (isset($lang_code)) {
     $language_list = language_list();
     $language      = $language_list[$lang_code];
   }
   $types = array();
-  foreach ($action_type_info as $type => $info) {
-    $types[$type] = array(
-      'enabled' => 1,
-      'text'    => $info['parameters']['recent_supporters']['default_text'],
-    );
+  foreach (entity_get_info()['node']['bundles'] as $type => $info) {
+    if (!empty($info['recent_supporters'])) {
+      $types[$type] = [
+        'enabled' => 1,
+        'text' => $info['recent_supporters']['default_text'],
+      ];
+    }
   }
   $language = $saved_lang;
 

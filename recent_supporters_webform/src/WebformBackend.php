@@ -33,9 +33,12 @@ SQL;
 
   public function recentOnAllActions(RequestParams $params) {
     $config = $params->getParams();
+    if (!$config['types']) {
+      return [];
+    }
     // get translations: na - activity node, nt - any available node translated into $lang, no - the "original" node (ie. the translation source)
     $sql = <<<SQL
-SELECT w.first_name, w.last_name, w.timestamp, w.country, w.comment
+SELECT w.first_name, w.last_name, w.timestamp, w.country, w.comment,
   na.nid, na.tnid, na.type AS action_type, na.status,
   COALESCE(nt.title, no.title, na.title) AS action_title,
   COALESCE(nt.tnid, no.tnid, na.nid) AS action_nid,
