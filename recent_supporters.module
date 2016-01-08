@@ -214,6 +214,16 @@ function recent_supporters_block_view($delta = '') {
 }
 
 /**
+ * Implements hook_polling_field_type_plugin_info().
+ */
+function recent_supporters_polling_field_type_plugin_info() {
+  $info['recent_supporters'] = [
+    '\\Drupal\\recent_supporters\\FieldPolling',
+  ];
+  return $info;
+}
+
+/**
  * creates content for a recent supporters block for 1 specific action;
  * called from hook_block_view();
  */
@@ -227,8 +237,12 @@ function _recent_supporters_block_recent_supporters() {
   // and not any related action site (in case we are on a thank_you_page
   // therefore: load the field prior to reloading the node
   $fields = recent_supporters_field_instances('node', $node, 'recent_supporters');
+  if (!$fields) {
+    return;
+  }
   // we use the first field only
-  $field = array_shift($fields);
+  $field_name = key($fields);
+  $field = current($fields);
   $show = isset($field['toggle']) ? $field['toggle'] : 0;
 
   /* thank_you_page integration */
@@ -271,8 +285,10 @@ function _recent_supporters_block_recent_supporters() {
           'showCountry' => $options['country_toggle'],
           'showComment' => $options['comment_toggle'],
           'visibleCount' => $options['visible_count'],
-          'pollingURL' => $polling_url,
-          'nodeID' => $node->nid,
+          'entity_type' => 'node',
+          'entity_id' => $node->nid,
+          'field_name' => $field_name,
+          'delta' => 0,
           'allActions' => FALSE,
         )
       )

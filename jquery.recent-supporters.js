@@ -16,49 +16,9 @@
 
   $.fn.recentSupporters = function( options ) {
 
-    // the default poll function
-    // it is attached to settings.poll which gets called on every poll
-    var pollSupporters = function () {
-      // no polling if there is no URL to poll
-      if (settings.pollingURL.length < 1) {
-        return;
-      }
-
-      // do the AJAX request on the polling URL
-      jQuery.ajax({
-        contentType: 'application/json',
-        url: settings.pollingURL,
-        success: function(data) {
-          // on success: update the container
-          updateRecentSupportersContainer(data);
-          setNextPoll();
-        },
-        error: function(data) {
-          // on 403 or 404 do *not* set a next polling try
-          if (data.status === '403') { // forbidden
-            return;
-          } else if (data.status === '404') { // not found
-            return;
-          } else if (pollErrorCount >= settings.maxPollErrorCount ) {
-            return;
-          } else {
-            // do nothing, be quiet, try again but slow down polling
-            settings.pollingIntervalMultiplier = settings.pollingIntervalMultiplier * 1.1;
-            pollErrorCount = pollErrorCount + 1;
-            setNextPoll();
-          }
-        }
-      });
-
-    }
-
     // These are the defaults.
     var defaults = {
       createListIfMissing: true,
-      pollingURL: '',
-      pollingInterval: 5000,
-      pollingIntervalMultiplier: 1.07,
-      poll: pollSupporters,
       cycleSupporters: true,
       cycleInterval: 4000,
       cycleEasing: 'linear',
@@ -68,35 +28,19 @@
       showCountry: true,
       showComment: false,
       maxPollErrorCount: 15,
-      nodeID: '0',
       texts: {},
       countries: {}
     }
     var settings = $.extend({}, defaults, options );
 
-    var nextPoll = settings.pollingInterval;
     var $container = this;
     var $ul = $('ul.recent-supporters', $container);
     var lastSupporterTimestamp = getMostRecentTimestamp();
-    var pollErrorCount = 0;
 
     // check if easing is available
     // if not set it to 'linear'
     if (!$.easing || !$.easing[settings.cycleEasing]) {
       settings.cycleEasing = 'linear';
-    }
-
-
-    /**
-     * sets the next poll via a timeout
-     */
-    function setNextPoll () {
-      // calculate next poll based on settings
-      // and set the timeout for next poll
-      nextPoll = Math.floor(nextPoll * settings.pollingIntervalMultiplier);
-      setTimeout(function() {
-        settings.poll.call();
-      }, nextPoll);
     }
 
     /**
@@ -203,7 +147,7 @@
         }
       }
 
-      // update variable used in next poll
+      // update variable used when updating the list.
       if (lastSupporterTimestamp < supporter.timestamp) {
         lastSupporterTimestamp = supporter.timestamp;
       }
@@ -338,10 +282,7 @@
       }, settings.cycleInterval);
     }
 
-    // start the polling if we have the requested box in the markup
     if (this.length > 0) {
-      settings.poll.call();
-
       // initialize timeago (if available)
       if ($.fn.timeago) {
         $('.time', $ul).timeago('updateFromDOM');
@@ -352,6 +293,7 @@
       }
     }
 
+    this.update = updateRecentSupportersContainer;
     return this;
   }
 })(jQuery);

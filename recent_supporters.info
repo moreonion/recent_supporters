@@ -3,6 +3,7 @@ description = Display recent a recent supporters block for online actions.
 core = 7.x
 
 dependencies[] = libraries
+dependencies[] = polling
 dependencies[] = psr0
 
 stylesheets[all][] = recent-supporters.css
