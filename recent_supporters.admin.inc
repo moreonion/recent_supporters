@@ -88,17 +88,20 @@ function recent_supporters_settings_form($form, &$form_state) {
     '#title' => t('Choose types of actions and texts.'),
     '#type'  => 'fieldset',
   );
-  $available_types = array_intersect_key(node_type_get_types(), Drupal\campaignion_action\TypeBase::types());
-  foreach ($available_types as $type => $type_config) {
+  $types = entity_get_info()['node']['bundles'];
+  foreach ($types as $type => $type_config) {
+    if (empty($type_config['recent_supporters'])) {
+      continue;
+    }
     $type_id = drupal_html_id('recent-supporters-type-' . str_replace('_', '-', $type));
     $form['recent_supporters_settings_types'][$type]['enabled'] = array(
-      '#title'         => $type_config->name,
+      '#title'         => $type_config['label'],
       '#type'          => 'checkbox',
       '#attributes'    => array('id' => $type_id),
       '#default_value' => $type_settings[$type]['enabled'],
     );
     $form['recent_supporters_settings_types'][$type]['text'] = array(
-      '#title'         => t('Text to display for %type actions.', array('%type' => $type_config->name)),
+      '#title'         => t('Text to display for %type actions.', array('%type' => $type_config['label'])),
       '#type'          => 'textfield',
       '#default_value' => $type_settings[$type]['text'],
       '#states'        => array('visible' => array('#' . $type_id => array('checked' => TRUE))),
