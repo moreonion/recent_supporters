@@ -1,0 +1,8 @@
+name = Campaignion Recent Supporters Webform
+description = Webform Backend for recent supporters
+core = 7.x
+
+dependencies[] = campaignion_recent_supporters
+dependencies[] = little_helpers
+dependencies[] = psr0
+dependencies[] = webform
