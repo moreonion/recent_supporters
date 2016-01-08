@@ -2,6 +2,7 @@ name = Recent Supporters
 description = Display recent a recent supporters block for online actions.
 core = 7.x
 
+dependencies[] = entity
 dependencies[] = libraries
 dependencies[] = polling
 dependencies[] = psr0

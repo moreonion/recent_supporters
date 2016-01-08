@@ -19,15 +19,15 @@ class RecentSupportersItem
 
 RecentSupportersItem.fromElement = ($element) ->
   id = $element.attr('id')
+  if not id
+    return false
   settings = Drupal.settings.recentSupporters.blocks[id]
   settings['id'] = id
-  if 'field_name' of settings
-    return new RecentSupportersItem(settings, $element)
-  return false
+  return new RecentSupportersItem(settings, $element)
 
 Drupal.behaviors.recent_supporters = {}
 Drupal.behaviors.recent_supporters.attach = (context, settings) ->
-  $('.block-recent-supporters', context).each(->
+  $('.recent-supporters-wrapper', context).each(->
     item = RecentSupportersItem.fromElement($(this))
     if item
       item.poll()

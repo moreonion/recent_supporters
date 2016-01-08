@@ -233,18 +233,6 @@ function _recent_supporters_block_recent_supporters() {
     return NULL;
   }
 
-  // read field settings from the site we are ON
-  // and not any related action site (in case we are on a thank_you_page
-  // therefore: load the field prior to reloading the node
-  $fields = recent_supporters_field_instances('node', $node, 'recent_supporters');
-  if (!$fields) {
-    return;
-  }
-  // we use the first field only
-  $field_name = key($fields);
-  $field = current($fields);
-  $show = isset($field['toggle']) ? $field['toggle'] : 0;
-
   /* thank_you_page integration */
   if (   $node->type == "thank_you_page"
       && isset( $_GET['share']) == TRUE
@@ -256,49 +244,17 @@ function _recent_supporters_block_recent_supporters() {
     return NULL;
   }
 
-  if ($show) {
-    // save values for polling
-    $polling_url = $GLOBALS['base_url'] . '/' . drupal_get_path('module', 'recent_supporters') . '/poll.php?';
-    $options = $field['options'] + recent_supporters_settings();
-    $backend = Loader::instance()->getBackend($options['backend']);
-    $params = $backend->buildParams($options, $node);
-    $polling_url .= $params->buildQuery();
-
-    $block['subject'] = t('Recent supporters');
-    $supporters = $backend->recentOnOneAction($params);
-    $block['content'] = array(
-      '#theme' => 'recent_supporters',
-      '#supporters' => $supporters,
-      '#show_country' => (bool) $options['country_toggle'],
-      '#show_comment' => (bool) $options['comment_toggle'],
-      '#all_actions' => FALSE,
-      '#texts' => NULL,
-    );
-
-    // set an unique id to use as key in Drupal.settings array
-    $block_id = drupal_html_id('recent-supporters');
-    $block['block_html_id'] = $block_id;
-    drupal_add_js(array('recentSupporters' => array(
-      'blocks' => array(
-        $block_id => array(
-          'cycleSupporters' => $options['cycle_toggle'],
-          'showCountry' => $options['country_toggle'],
-          'showComment' => $options['comment_toggle'],
-          'visibleCount' => $options['visible_count'],
-          'entity_type' => 'node',
-          'entity_id' => $node->nid,
-          'field_name' => $field_name,
-          'delta' => 0,
-          'allActions' => FALSE,
-        )
-      )
-    )), 'setting');
-
-    if ($options['country_toggle']) {
-      $dir = _recent_supporters_countries_dir();
-      drupal_add_js($dir . '/' . $GLOBALS['language']->language . '.js', array('scope' => 'footer', 'preprocess' => FALSE));
-    }
+  // read field settings from the site we are ON
+  // and not any related action site (in case we are on a thank_you_page
+  // therefore: load the field prior to reloading the node
+  list($items, $instance, $field) = recent_supporters_first_field('node', $node, 'recent_supporters');
+  if (!$field) {
+    return;
   }
+
+  $lang = $GLOBALS['language']->language;
+  $block['subject'] = t('Recent supporters');
+  $block['content'] = recent_supporters_field_formatter_view('node', $node, $field, $instance, $lang, $items, []);
   return $block;
 }
 
@@ -432,6 +388,7 @@ function recent_supporters_country_json($filename) {
 function recent_supporters_theme() {
   $theme['recent_supporters'] = array(
     'variables' => array(
+      'id' => '',
       'supporters' => array(),
       'show_country' => FALSE,
       'show_comment' => FALSE,
@@ -459,6 +416,7 @@ function theme_recent_supporters($variables) {
   else {
     $all_actions = $variables['all_actions'] ? 'recent-supporters-all-actions' : 'recent-supporters-single-action';
     $texts = $variables['texts'];
+    $output .= "<div id=\"{$variables['id']}\" class=\"recent-supporters-wrapper\">";
     $output .= "<ul class=\"recent-supporters $all_actions\">\n";
     foreach($supporters as $supporter) {
       $action_type = "";
@@ -468,9 +426,9 @@ function theme_recent_supporters($variables) {
       $output .= "<li class=\"supporter clearfix $action_type\">\n";
 
       if ($show_country) {
-        $classes = "flag-".strtolower(drupal_clean_css_identifier($country_code));
         $country_code = empty($supporter['country']) ? 'no-cc' : $supporter['country'];
         $country_name = $country_code == 'no-cc' ? '' : $countries[$country_code];
+        $classes = "flag-".strtolower(drupal_clean_css_identifier($country_code));
         $output .= "<span title=\"".t($country_name)
           ."\" class=\"country flag " . $classes ."\">";
         $output .= $country_code;
@@ -506,7 +464,7 @@ function theme_recent_supporters($variables) {
 
       $output .= "</li>\n";
     }
-    $output .= "</ul>\n";
+    $output .= "</ul></div>\n";
   }
   return $output;
 }
@@ -697,20 +655,76 @@ function recent_supporters_field_is_empty($item, $field) {
 }
 
 /**
+ * Implements hook_field_formatter_view().
+ */
+function recent_supporters_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $entity_id = entity_id($entity_type, $entity);
+  $field_name = $field['field_name'];
+
+  $output = [];
+  foreach ($items as $delta => $item) {
+    $show = isset($item['toggle']) ? $item['toggle'] : 0;
+
+    if ($show) {
+      // save values for polling
+      $options = $item['options'] + recent_supporters_settings();
+      $backend = Loader::instance()->getBackend($options['backend']);
+      $id = drupal_html_id('recent-supporters');
+
+      $params = $backend->buildParams($options, $entity);
+      $supporters = $backend->recentOnOneAction($params);
+      $content = array(
+        '#theme' => 'recent_supporters',
+        '#id' => $id,
+        '#supporters' => $supporters,
+        '#show_country' => (bool) $options['country_toggle'],
+        '#show_comment' => (bool) $options['comment_toggle'],
+        '#all_actions' => FALSE,
+        '#texts' => NULL,
+      );
+
+      // set an unique id to use as key in Drupal.settings array
+      drupal_add_js(array('recentSupporters' => array(
+        'blocks' => array(
+          $id => array(
+            'cycleSupporters' => $options['cycle_toggle'],
+            'showCountry' => $options['country_toggle'],
+            'showComment' => $options['comment_toggle'],
+            'visibleCount' => $options['visible_count'],
+            'entity_type' => $entity_type,
+            'entity_id' => $entity_id,
+            'field_name' => $field_name,
+            'delta' => $delta,
+            'allActions' => FALSE,
+          )
+        )
+      )), 'setting');
+
+      if ($options['country_toggle']) {
+        $dir = _recent_supporters_countries_dir();
+        drupal_add_js($dir . '/' . $langcode . '.js', array('scope' => 'footer', 'preprocess' => FALSE));
+      }
+      $output[] = $content;
+    }
+  }
+  return $output;
+}
+
+/**
  * utility function: returns all field items by field type in array
  * (indexed by field name)
  */
-function recent_supporters_field_instances($entity_type, $node, $field_type) {
+function recent_supporters_first_field($entity_type, $node, $field_type) {
   $instances = field_info_instances($entity_type, $node->type);
   $recent_supporter_fields = array();
   foreach ($instances as $instance) {
-    $field_info = field_info_field($instance['field_name']);
-    if ($field_info['type'] == $field_type) {
-      $item = field_get_items($entity_type, $node, $instance['field_name']);
-      if ($item) {
-        $recent_supporter_fields[$instance['field_name']] = $item[0];
+    $field = field_info_field($instance['field_name']);
+    if ($field['type'] == $field_type) {
+      $items = field_get_items($entity_type, $node, $instance['field_name']);
+      if ($items) {
+        return [$items, $instance, $field];
       }
     }
   }
-  return $recent_supporter_fields;
+  return [NULL, NULL, NULL];
 }

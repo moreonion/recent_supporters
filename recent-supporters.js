@@ -29,18 +29,18 @@ RecentSupportersItem = (function() {
 RecentSupportersItem.fromElement = function($element) {
   var id, settings;
   id = $element.attr('id');
+  if (!id) {
+    return false;
+  }
   settings = Drupal.settings.recentSupporters.blocks[id];
   settings['id'] = id;
-  if ('field_name' in settings) {
-    return new RecentSupportersItem(settings, $element);
-  }
-  return false;
+  return new RecentSupportersItem(settings, $element);
 };
 
 Drupal.behaviors.recent_supporters = {};
 
 Drupal.behaviors.recent_supporters.attach = function(context, settings) {
-  return $('.block-recent-supporters', context).each(function() {
+  return $('.recent-supporters-wrapper', context).each(function() {
     var item;
     item = RecentSupportersItem.fromElement($(this));
     if (item) {
