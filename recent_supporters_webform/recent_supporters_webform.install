@@ -3,8 +3,8 @@
 /**
  * Implements hook_schema().
  */
-function campaignion_recent_supporters_webform_schema() {
-  $tables['campaignion_recent_supporters_webform'] = array(
+function recent_supporters_webform_schema() {
+  $tables['recent_supporters_webform'] = array(
     'fields' => array(
       'sid' => array(
         'description' => 'Foreign key for webform_submissions.sid',
@@ -56,8 +56,8 @@ function campaignion_recent_supporters_webform_schema() {
 /**
  * Add comment field to recent supporters table.
  */
-function campaignion_recent_supporters_webform_update_7101() {
-  db_add_field('campaignion_recent_supporters_webform', 'comment', array(
+function recent_supporters_webform_update_7101() {
+  db_add_field('recent_supporters_webform', 'comment', array(
     'description' => 'Users comment',
     'type' => 'text',
   ));

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\campaignion_recent_supporters;
+namespace Drupal\recent_supporters;
 
 class RequestParams {
   protected $params;

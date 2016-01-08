@@ -1,0 +1,12 @@
+name = Recent Supporters
+description = Display recent a recent supporters block for online actions.
+core = 7.x
+
+dependencies[] = libraries
+dependencies[] = psr0
+
+stylesheets[all][] = recent-supporters.css
+stylesheets[all][] = flags.css
+
+scripts[] = jquery.recent-supporters.js
+scripts[] = recent-supporters.js

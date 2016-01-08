@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\campaignion_recent_supporters;
+namespace Drupal\recent_supporters;
 
 /**
  * Loader for recent supporters.
@@ -38,7 +38,7 @@ abstract class BackendBase {
 
     // resolve "default" name display
     if ((int)$name_display === CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT) {
-      $name_display_default = variable_get('campaignion_recent_supporters_name_display_default', CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL);
+      $name_display_default = variable_get('recent_supporters_name_display_default', CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL);
       // if $name_display_default is still CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT
       // (e.g. it was explicitly set in the variable) we override it manually, as
       // 'default' would make no sense here any more
@@ -66,7 +66,7 @@ abstract class BackendBase {
           // @TODO with hyphens Last-Name
           if (!empty($supporter['last_name'])) {
             $ln_array = preg_split("/ +/", $supporter['last_name']);
-            $supporter['last_name'] = implode(' ', array_map('_campaignion_recent_supporters_strip_callback', $ln_array));
+            $supporter['last_name'] = implode(' ', array_map('_recent_supporters_strip_callback', $ln_array));
           }
           break;
         case CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FULL:

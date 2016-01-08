@@ -5,14 +5,14 @@ use \Drupal\little_helpers\Webform\Submission;
 /**
  * Implements hook_menu().
  */
-function campaignion_recent_supporters_webform_menu() {
+function recent_supporters_webform_menu() {
   $items['admin/config/content/recent-supporters/webform'] = array(
     'title'            => t('Webform backend'),
     'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('campaignion_recent_supporters_webform_settings_form'),
+    'page arguments'   => array('recent_supporters_webform_settings_form'),
     'description'      => t('Settings for the recent supporters webform backend.'),
     'access arguments' => array('administer recent supporters'),
-    'file'             => 'campaignion_recent_supporters_webform.admin.inc',
+    'file'             => 'recent_supporters_webform.admin.inc',
     'type'             => MENU_LOCAL_TASK,
   );
   return $items;
@@ -21,8 +21,8 @@ function campaignion_recent_supporters_webform_menu() {
 /**
  * Get the current webform form_key mapping.
  */
-function campaignion_recent_supporters_webform_mapping() {
-  $settings = variable_get('campaignion_recent_supporters_webform_mapping', array()) + array(
+function recent_supporters_webform_mapping() {
+  $settings = variable_get('recent_supporters_webform_mapping', array()) + array(
     'first_name' => array('first_name', 'firstname'),
     'last_name' => array('last_name', 'lastname'),
     'country' => array('country'),
@@ -34,8 +34,8 @@ function campaignion_recent_supporters_webform_mapping() {
 /**
  * Get the current cron settings.
  */
-function campaignion_recent_supporters_webform_cron_settings() {
-  $settings = variable_get('campaignion_recent_supporters_webform_cron', array()) + array(
+function recent_supporters_webform_cron_settings() {
+  $settings = variable_get('recent_supporters_webform_cron', array()) + array(
     'max_age' => 7776000, // 90 days in seconds.
     'max_number' => 15,
   );
@@ -43,23 +43,23 @@ function campaignion_recent_supporters_webform_cron_settings() {
 }
 
 /**
- * Implements hook_campaignion_recent_supporters_backend_info().
+ * Implements hook_recent_supporters_backend_info().
  */
-function campaignion_recent_supporters_webform_campaignion_recent_supporters_backend_info() {
-  $backends['webform'] = '\\Drupal\\campaignion_recent_supporters_webform\\WebformBackend';
+function recent_supporters_webform_recent_supporters_backend_info() {
+  $backends['webform'] = '\\Drupal\\recent_supporters_webform\\WebformBackend';
   return $backends;
 }
 
 /**
  * Implements hook_webform_submission_insert().
  */
-function campaignion_recent_supporters_webform_webform_submission_insert($node, $submission) {
+function recent_supporters_webform_webform_submission_insert($node, $submission) {
   if ($submission->is_draft) {
     return;
   }
 
   $submissionObj = new Submission($node, $submission);
-  $map = campaignion_recent_supporters_webform_mapping();
+  $map = recent_supporters_webform_mapping();
   $fields = array();
   foreach ($map as $field => $form_keys) {
     $fields[$field] = NULL;
@@ -81,7 +81,7 @@ function campaignion_recent_supporters_webform_webform_submission_insert($node, 
   $dbkey['sid'] = $submission->sid;
   $fields['timestamp'] = $submissionObj->submitted;
 
-  db_merge('campaignion_recent_supporters_webform')
+  db_merge('recent_supporters_webform')
     ->key($dbkey)
     ->fields($fields)
     ->execute();
@@ -90,15 +90,15 @@ function campaignion_recent_supporters_webform_webform_submission_insert($node, 
 /**
  * Implements hook_webform_submission_update().
  */
-function campaignion_recent_supporters_webform_webform_submission_update($node, $submission) {
-  campaignion_recent_supporters_webform_webform_submission_insert($node, $submission);
+function recent_supporters_webform_webform_submission_update($node, $submission) {
+  recent_supporters_webform_webform_submission_insert($node, $submission);
 }
 
 /**
  * Implements hook_webform_submission_delete().
  */
-function campaignion_recent_supporters_webform_webform_submission_delete($node, $submission) {
-  db_delete('campaignion_recent_supporters_webform')
+function recent_supporters_webform_webform_submission_delete($node, $submission) {
+  db_delete('recent_supporters_webform')
     ->condition('sid', $submission->sid)
     ->execute();
 }
@@ -106,8 +106,8 @@ function campaignion_recent_supporters_webform_webform_submission_delete($node, 
 /**
  * Implements hook_node_delete().
  */
-function campaignion_recent_supporters_webform_node_delete($node) {
-  db_delete('campaignion_recent_supporters_webform')
+function recent_supporters_webform_node_delete($node) {
+  db_delete('recent_supporters_webform')
     ->condition('nid', $node->sid)
     ->execute();
 }
@@ -119,10 +119,10 @@ function campaignion_recent_supporters_webform_node_delete($node) {
  *  - Delete all entries older than a maximum age.
  *  - Limit the number of entries per action to the most recent.
  */
-function campaignion_recent_supporters_webform_cron() {
-  $settings = campaignion_recent_supporters_webform_cron_settings();
+function recent_supporters_webform_cron() {
+  $settings = recent_supporters_webform_cron_settings();
 
-  $table = 'campaignion_recent_supporters_webform';
+  $table = 'recent_supporters_webform';
   if ($settings['max_age'] > 0) {
     db_delete($table)
       ->condition('timestamp', REQUEST_TIME - $settings['max_age'], '<')

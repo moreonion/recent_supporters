@@ -1,9 +1,9 @@
 <?php
 
-namespace Drupal\campaignion_recent_supporters_webform;
+namespace Drupal\recent_supporters_webform;
 
-use \Drupal\campaignion_recent_supporters\BackendBase;
-use \Drupal\campaignion_recent_supporters\RequestParams;
+use \Drupal\recent_supporters\BackendBase;
+use \Drupal\recent_supporters\RequestParams;
 
 /**
  * Loader for recent supporters.
@@ -20,7 +20,7 @@ class WebformBackend extends BackendBase {
       $config = $params->getParams();
     $sql = <<<SQL
 SELECT n.nid, n.tnid, w.first_name, w.last_name, w.timestamp, w.country, w.comment
-FROM {campaignion_recent_supporters_webform} w
+FROM {recent_supporters_webform} w
   INNER JOIN {node} n USING(nid)
 WHERE n.status = 1
     AND (n.nid = :nid OR n.nid IN (SELECT tn.nid FROM {node} tn INNER JOIN {node} n USING(tnid) WHERE n.nid = :nid AND n.tnid != 0))
@@ -40,7 +40,7 @@ SELECT w.first_name, w.last_name, w.timestamp, w.country, w.comment
   COALESCE(nt.title, no.title, na.title) AS action_title,
   COALESCE(nt.tnid, no.tnid, na.nid) AS action_nid,
   COALESCE(nt.language, no.language, na.language) AS action_lang
-FROM {campaignion_recent_supporters_webform} w
+FROM {recent_supporters_webform} w
   INNER JOIN {node} na ON w.nid = na.nid
   LEFT OUTER JOIN {node} nt ON na.tnid != 0 AND nt.tnid = na.tnid AND nt.language = :lang AND nt.status>0
   LEFT OUTER JOIN {node} no ON na.tnid = no.nid AND no.status>0

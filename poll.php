@@ -7,7 +7,7 @@
  * recent supporter data.
  */
 
-function campaignion_recent_supporters_bootstrap_inc() {
+function recent_supporters_bootstrap_inc() {
   # set base_url explicitly as SCRIPT_NAME would lead to
   # a 'wrong' base_url for the site
   global $base_url;
@@ -29,7 +29,7 @@ function campaignion_recent_supporters_bootstrap_inc() {
   }
 }
 
-if ($bootstrap = campaignion_recent_supporters_bootstrap_inc()) {
+if ($bootstrap = recent_supporters_bootstrap_inc()) {
   require_once $bootstrap;
 }
 
@@ -45,9 +45,9 @@ foreach (variable_get('cache_backends', array()) as $include) {
 drupal_load('module', 'psr0');
 spl_autoload_register('drupal_autoload_class');
 spl_autoload_register('drupal_autoload_interface');
-require_once dirname(__FILE__) . '/campaignion_recent_supporters.module';
+require_once dirname(__FILE__) . '/recent_supporters.module';
 
-use \Drupal\campaignion_recent_supporters\RequestParams;
+use \Drupal\recent_supporters\RequestParams;
 
 $params = new RequestParams($_GET);
 if (!$params->isValid()) {

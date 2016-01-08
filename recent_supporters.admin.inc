@@ -3,13 +3,13 @@
  * @file
  */
 
-use \Drupal\campaignion_recent_supporters\Loader;
+use \Drupal\recent_supporters\Loader;
 
 /**
  * Menu/form callback: settings form.
  */
-function campaignion_recent_supporters_settings_form($form, &$form_state) {
-  $saved_settings = campaignion_recent_supporters_settings();
+function recent_supporters_settings_form($form, &$form_state) {
+  $saved_settings = recent_supporters_settings();
 
   $form['#tree'] = TRUE;
   $form['general_settings'] = array(
@@ -34,7 +34,7 @@ function campaignion_recent_supporters_settings_form($form, &$form_state) {
     '#title'         => t('Supporter name display'),
     '#description'   => t('Configure the information displayed about the supporters.'),
     '#type'          => 'select',
-    '#options'       => _campaignion_recent_supporters_name_display_options(),
+    '#options'       => _recent_supporters_name_display_options(),
     '#attributes'    => array(),
     '#default_value' => $saved_settings['name_display'],
   );
@@ -83,21 +83,21 @@ function campaignion_recent_supporters_settings_form($form, &$form_state) {
       $lang_code = $keys['language'];
     }
   }
-  $type_settings = variable_get('campaignion_recent_supporters_settings_types', _campaignion_recent_supporters_get_types_defaults($lang_code));
-  $form['campaignion_recent_supporters_settings_types'] = array(
+  $type_settings = variable_get('recent_supporters_settings_types', _recent_supporters_get_types_defaults($lang_code));
+  $form['recent_supporters_settings_types'] = array(
     '#title' => t('Choose types of actions and texts.'),
     '#type'  => 'fieldset',
   );
   $available_types = array_intersect_key(node_type_get_types(), Drupal\campaignion_action\TypeBase::types());
   foreach ($available_types as $type => $type_config) {
-    $type_id = drupal_html_id('campaignion-recent-supporters-type-' . str_replace('_', '-', $type));
-    $form['campaignion_recent_supporters_settings_types'][$type]['enabled'] = array(
+    $type_id = drupal_html_id('recent-supporters-type-' . str_replace('_', '-', $type));
+    $form['recent_supporters_settings_types'][$type]['enabled'] = array(
       '#title'         => $type_config->name,
       '#type'          => 'checkbox',
       '#attributes'    => array('id' => $type_id),
       '#default_value' => $type_settings[$type]['enabled'],
     );
-    $form['campaignion_recent_supporters_settings_types'][$type]['text'] = array(
+    $form['recent_supporters_settings_types'][$type]['text'] = array(
       '#title'         => t('Text to display for %type actions.', array('%type' => $type_config->name)),
       '#type'          => 'textfield',
       '#default_value' => $type_settings[$type]['text'],
@@ -110,7 +110,7 @@ function campaignion_recent_supporters_settings_form($form, &$form_state) {
       '!supporter_name - Firstname and lastname of the supporter that just took action',
     ),
   );
-  $form['campaignion_recent_supporters_settings_types']['token_legend'] = array(
+  $form['recent_supporters_settings_types']['token_legend'] = array(
     '#type'        => 'fieldset',
     '#title'       => t('Available tokens:'),
     '#collapsible' => TRUE,
@@ -119,17 +119,17 @@ function campaignion_recent_supporters_settings_form($form, &$form_state) {
     '#attributes'  => array('class' => array('collapsible', 'collapsed')),
   );
   if (module_exists('variable_realm') && module_exists('i18n_variable')) {
-    $form['#realm_variables']['language']['campaignion_recent_supporters_settings_types'] = 'campaignion_recent_supporters_settings_types';
+    $form['#realm_variables']['language']['recent_supporters_settings_types'] = 'recent_supporters_settings_types';
     //copied from variable_realm.variable.inc
     form_load_include($form_state, 'form.inc', 'variable_realm');
     _variable_realm_variable_settings_form_switcher($form);
   }
   $form = system_settings_form($form);
-  array_unshift($form['#submit'], 'campaignion_recent_supporters_settings_form_submit');
+  array_unshift($form['#submit'], 'recent_supporters_settings_form_submit');
   return $form;
 }
 
-function campaignion_recent_supporters_settings_form_submit($form, &$form_state) {
+function recent_supporters_settings_form_submit($form, &$form_state) {
   $result = array(
     'backend'        => $form_state['values']['general_settings']['backend'],
     'query_limit'    => $form_state['values']['block_settings']['query_limit'],
@@ -138,7 +138,7 @@ function campaignion_recent_supporters_settings_form_submit($form, &$form_state)
     'country_toggle' => $form_state['values']['block_settings']['country_toggle'],
     'name_display'   => $form_state['values']['block_settings']['name_display'],
   );
-  variable_set('campaignion_recent_supporters_settings', $result);
+  variable_set('recent_supporters_settings', $result);
   // Don't save those into variables in system_settings_form_submit().
   unset($form_state['values']['general_settings']);
   unset($form_state['values']['block_settings']);

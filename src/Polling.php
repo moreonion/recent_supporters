@@ -1,6 +1,6 @@
 <?php
 
-namespace \Drupal\campaignion_recent_supporters;
+namespace \Drupal\recent_supporters;
 
 class Polling implements \Drupal\polling\FieldTypePollingInterface {
   public static function instance($entity, $field, $instance) {

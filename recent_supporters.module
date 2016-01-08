@@ -1,14 +1,16 @@
 <?php
 
+require_once DRUPAL_ROOT . '/includes/locale.inc';
+
 define ('CAMPAIGNION_RECENT_SUPPORTENODE_URL_PART', 'recent-supporters');
 define ('CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT', 0);
 define ('CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FULL', 1);
 define ('CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_INITIAL', 2);
 define ('CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FIRST_ONLY', 3);
 
-use \Drupal\campaignion_recent_supporters\Loader;
+use \Drupal\recent_supporters\Loader;
 
-function _campaignion_recent_supporters_name_display_options() {
+function _recent_supporters_name_display_options() {
   return array(
     CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT => t('Default'),
     CAMPAIGNION_RECENT_SUPPORTERS_NAME_DISPLAY_FULL => t('Full name'),
@@ -20,8 +22,8 @@ function _campaignion_recent_supporters_name_display_options() {
 /**
  * Get the current recent supporter settings.
  */
-function campaignion_recent_supporters_settings() {
-  $saved_settings = variable_get('campaignion_recent_supporters_settings', array()) + array(
+function recent_supporters_settings() {
+  $saved_settings = variable_get('recent_supporters_settings', array()) + array(
     'backend'        => 'webform',
     'query_limit'    => 10,
     'visible_count'  => 6,
@@ -36,14 +38,14 @@ function campaignion_recent_supporters_settings() {
 /**
  * Implements hook_menu();
  */
-function campaignion_recent_supporters_menu() {
+function recent_supporters_menu() {
   // Serve a localized ISO -> country-name mapping.
   // If clean URLs are disabled, it will always be served through the menu system.
   // If clean URLs are enabled and it already exists, PHP will be bypassed.
-  $dir = _campaignion_recent_supporters_countries_dir();
+  $dir = _recent_supporters_countries_dir();
   $items[$dir . '/%'] = array(
     'title' => 'Generate JS country mapping',
-    'page callback' => 'campaignion_recent_supporters_country_json',
+    'page callback' => 'recent_supporters_country_json',
     'page arguments' => array(count(explode('/', $dir))),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
@@ -51,10 +53,10 @@ function campaignion_recent_supporters_menu() {
   $items['admin/config/content/recent-supporters'] = array(
     'title'            => t('Recent Supporter Settings'),
     'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('campaignion_recent_supporters_settings_form'),
+    'page arguments'   => array('recent_supporters_settings_form'),
     'description'      => 'Recent Supporter settings.',
     'access arguments' => array('administer recent supporters'),
-    'file'             => 'campaignion_recent_supporters.admin.inc',
+    'file'             => 'recent_supporters.admin.inc',
   );
   $items['admin/config/content/recent-supporters/general'] = array(
     'title' => t('General settings'),
@@ -66,7 +68,7 @@ function campaignion_recent_supporters_menu() {
 /**
  * Implements hook_permission().
  */
-function campaignion_recent_supporters_permission() {
+function recent_supporters_permission() {
   $permissions['administer recent supporters'] = array(
     'title'       => t('Administer recent supporter settings'),
     'description' => t('Administer site-wide settings for the recent supporters block.'),
@@ -74,19 +76,19 @@ function campaignion_recent_supporters_permission() {
   return $permissions;
 }
 
-function _campaignion_recent_supporters_countries_dir() {
+function _recent_supporters_countries_dir() {
   $directory_path = file_stream_wrapper_get_instance_by_scheme('public')->getDirectoryPath();
   return $directory_path . '/countries';
 }
 
-function campaignion_recent_supporters_preprocess_block(&$variables) {
-  if (   $variables['block']->module == 'campaignion_recent_supporters'
+function recent_supporters_preprocess_block(&$variables) {
+  if (   $variables['block']->module == 'recent_supporters'
       && !empty($variables['block']->block_html_id)) {
     $variables['block_html_id'] = $variables['block']->block_html_id;
   }
 }
 
-function campaignion_recent_supporters_preprocess_html($variables) {
+function recent_supporters_preprocess_html($variables) {
   $langcode = '';
   if (!empty($variables['language'])) {
     $lang = preg_split('/-/', $variables['language']->language);
@@ -107,8 +109,8 @@ function campaignion_recent_supporters_preprocess_html($variables) {
 /**
  * Implements hook_library().
  */
-function campaignion_recent_supporters_library() {
-  $path = drupal_get_path('module', 'campaignion_recent_supporters');
+function recent_supporters_library() {
+  $path = drupal_get_path('module', 'recent_supporters');
   if (function_exists('libraries_get_path') && file_exists(libraries_get_path('timeago'))) {
     $path = libraries_get_path('timeago');
   }
@@ -127,7 +129,7 @@ function campaignion_recent_supporters_library() {
 /**
  * Implements hook_libraries_info().
  */
-function campaignion_recent_supporters_libraries_info() {
+function recent_supporters_libraries_info() {
   $library = array(
     'timeago' => array(
       'name' => t('Time ago'),
@@ -181,7 +183,7 @@ function campaignion_recent_supporters_libraries_info() {
 /**
  * Implements hook_block_info().
  */
-function campaignion_recent_supporters_block_info() {
+function recent_supporters_block_info() {
   $info = array(
     'recent_supporters' => array(
       'info'   => t('Recent supporters'),
@@ -198,14 +200,14 @@ function campaignion_recent_supporters_block_info() {
 /**
  * Implements hook_block_view().
  */
-function campaignion_recent_supporters_block_view($delta = '') {
+function recent_supporters_block_view($delta = '') {
   $block = array();
   switch ($delta) {
     case 'recent_supporters':
-      $block = _campaignion_recent_supporters_block_recent_supporters();
+      $block = _recent_supporters_block_recent_supporters();
       break;
     case 'recent_supporters_all_actions':
-      $block = _campaignion_recent_supporters_block_recent_supporters_all_actions();
+      $block = _recent_supporters_block_recent_supporters_all_actions();
       break;
   }
   return $block;
@@ -215,7 +217,7 @@ function campaignion_recent_supporters_block_view($delta = '') {
  * creates content for a recent supporters block for 1 specific action;
  * called from hook_block_view();
  */
-function _campaignion_recent_supporters_block_recent_supporters() {
+function _recent_supporters_block_recent_supporters() {
   $block = array();
   if (($node = menu_get_object()) == FALSE || isset($node->nid) == FALSE) {
     return NULL;
@@ -224,7 +226,7 @@ function _campaignion_recent_supporters_block_recent_supporters() {
   // read field settings from the site we are ON
   // and not any related action site (in case we are on a thank_you_page
   // therefore: load the field prior to reloading the node
-  $fields = campaignion_recent_supporters_field_instances('node', $node, 'recent_supporters');
+  $fields = recent_supporters_field_instances('node', $node, 'recent_supporters');
   // we use the first field only
   $field = array_shift($fields);
   $show = isset($field['toggle']) ? $field['toggle'] : 0;
@@ -242,8 +244,8 @@ function _campaignion_recent_supporters_block_recent_supporters() {
 
   if ($show) {
     // save values for polling
-    $polling_url = $GLOBALS['base_url'] . '/' . drupal_get_path('module', 'campaignion_recent_supporters') . '/poll.php?';
-    $options = $field['options'] + campaignion_recent_supporters_settings();
+    $polling_url = $GLOBALS['base_url'] . '/' . drupal_get_path('module', 'recent_supporters') . '/poll.php?';
+    $options = $field['options'] + recent_supporters_settings();
     $backend = Loader::instance()->getBackend($options['backend']);
     $params = $backend->buildParams($options, $node);
     $polling_url .= $params->buildQuery();
@@ -260,7 +262,7 @@ function _campaignion_recent_supporters_block_recent_supporters() {
     );
 
     // set an unique id to use as key in Drupal.settings array
-    $block_id = drupal_html_id('campaignion-recent-supporters');
+    $block_id = drupal_html_id('recent-supporters');
     $block['block_html_id'] = $block_id;
     drupal_add_js(array('recentSupporters' => array(
       'blocks' => array(
@@ -277,7 +279,7 @@ function _campaignion_recent_supporters_block_recent_supporters() {
     )), 'setting');
 
     if ($options['country_toggle']) {
-      $dir = _campaignion_recent_supporters_countries_dir();
+      $dir = _recent_supporters_countries_dir();
       drupal_add_js($dir . '/' . $GLOBALS['language']->language . '.js', array('scope' => 'footer', 'preprocess' => FALSE));
     }
   }
@@ -288,7 +290,7 @@ function _campaignion_recent_supporters_block_recent_supporters() {
  * Helper function to get all installed action content types as
  * well as their default recent supporters texts
  */
-function _campaignion_recent_supporters_get_types_defaults($lang_code = NULL) {
+function _recent_supporters_get_types_defaults($lang_code = NULL) {
   global $language;
   static $action_type_info;
   if (!isset($action_type_info)) {
@@ -316,25 +318,25 @@ function _campaignion_recent_supporters_get_types_defaults($lang_code = NULL) {
  * action pages with configured texts;
  * called from hook_block_view();
  */
-function _campaignion_recent_supporters_block_recent_supporters_all_actions() {
+function _recent_supporters_block_recent_supporters_all_actions() {
   $block = array();
-  $saved_settings = campaignion_recent_supporters_settings();
-  $types_settings = variable_get('campaignion_recent_supporters_settings_types', array())
-    + _campaignion_recent_supporters_get_types_defaults($GLOBALS['language']->language);
+  $saved_settings = recent_supporters_settings();
+  $types_settings = variable_get('recent_supporters_settings_types', array())
+    + _recent_supporters_get_types_defaults($GLOBALS['language']->language);
   $types = array();
   foreach ($types_settings as $type => $setting) {
     if ($setting['enabled']) {
       $types[] = $type;
     }
   }
-  $polling_url = $GLOBALS['base_url'] . '/' . drupal_get_path('module', 'campaignion_recent_supporters') . '/poll.php?';
+  $polling_url = $GLOBALS['base_url'] . '/' . drupal_get_path('module', 'recent_supporters') . '/poll.php?';
 
   $backend = Loader::instance()->getBackend($saved_settings['backend']);
   $params = $backend->buildParams($saved_settings, NULL, $types);
   $polling_url .= $params->buildQuery();
 
   $supporters  = $backend->recentOnAllActions($params);
-  $texts = _campaignion_recent_supporters_get_action_texts($types);
+  $texts = _recent_supporters_get_action_texts($types);
 
   $block['subject'] = t('Recent supporters');
   $block['content'] = array(
@@ -358,7 +360,7 @@ function _campaignion_recent_supporters_block_recent_supporters_all_actions() {
 
   // set an unique id to use as key in Drupal.settings array
   // and fill with block specific settings
-  $block_id = drupal_html_id('campaignion-recent-supporters');
+  $block_id = drupal_html_id('recent-supporters');
   $block['block_html_id'] = $block_id;
   drupal_add_js(array('recentSupporters' => array(
     'blocks' => array(
@@ -377,7 +379,7 @@ function _campaignion_recent_supporters_block_recent_supporters_all_actions() {
   )),'setting');
 
   if ($saved_settings['country_toggle']) {
-    $dir = _campaignion_recent_supporters_countries_dir();
+    $dir = _recent_supporters_countries_dir();
     drupal_add_js($dir . '/' . $GLOBALS['language']->language . '.js', array('scope' => 'footer', 'preprocess' => FALSE));
   }
   return $block;
@@ -386,7 +388,7 @@ function _campaignion_recent_supporters_block_recent_supporters_all_actions() {
 /**
  * Page callback for country Javascript.
  */
-function campaignion_recent_supporters_country_json($filename) {
+function recent_supporters_country_json($filename) {
   $langCode = substr($filename, 0, strlen($filename) - 3);
   $languages = language_list();
   if (isset($languages[$langCode])) {
@@ -399,7 +401,7 @@ function campaignion_recent_supporters_country_json($filename) {
   $target = 'public://countries/' . $langCode . '.js';
   $target_dir = dirname($target);
   if (!file_prepare_directory($target_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    watchdog('campaignion_recent_supporters', 'Unable to create directory: !dir.', array('!dir' => $target_dir), WATCHDOG_ERROR);
+    watchdog('recent_supporters', 'Unable to create directory: !dir.', array('!dir' => $target_dir), WATCHDOG_ERROR);
     return NULL;
   }
 
@@ -412,7 +414,7 @@ function campaignion_recent_supporters_country_json($filename) {
 /**
  * Implements hook_theme().
  */
-function campaignion_recent_supporters_theme() {
+function recent_supporters_theme() {
   $theme['recent_supporters'] = array(
     'variables' => array(
       'supporters' => array(),
@@ -496,7 +498,7 @@ function theme_recent_supporters($variables) {
 /**
  * callback funtion
  */
-function _campaignion_recent_supporters_strip_callback($value) {
+function _recent_supporters_strip_callback($value) {
   return mb_substr($value, 0, 1);
 };
 
@@ -504,11 +506,11 @@ function _campaignion_recent_supporters_strip_callback($value) {
  * helper function: get the configured action texts
  * returns only the texts for the types in the parameter, or all if the parameter is an empty array
  */
-function _campaignion_recent_supporters_get_action_texts($types = array()) {
+function _recent_supporters_get_action_texts($types = array()) {
   static $texts;
 
   if (!isset($texts)) {
-    $texts = variable_get('campaignion_recent_supporters_settings_types', _campaignion_recent_supporters_get_types_defaults());
+    $texts = variable_get('recent_supporters_settings_types', _recent_supporters_get_types_defaults());
   }
   if (!empty($types)) {
     $filtered_types = array_intersect_key($texts, array_flip($types));
@@ -527,7 +529,7 @@ function _campaignion_recent_supporters_get_action_texts($types = array()) {
 /**
  * Implements hook_field_widget_form().
  */
-function campaignion_recent_supporters_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+function recent_supporters_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   $item = isset($items[$delta]) ? $items[$delta] : array();
   if (isset($instance['default_value'][$delta]) && !isset($items[$delta])) {
     $item = $instance['default_value'][$delta];
@@ -569,7 +571,7 @@ function campaignion_recent_supporters_field_widget_form(&$form, &$form_state, $
     '#title' => t('Supporter name display'),
     '#description' => t('Configure the information displayed about the supporters of this action.'),
     '#type' => 'select',
-    '#options' => _campaignion_recent_supporters_name_display_options(),
+    '#options' => _recent_supporters_name_display_options(),
     '#attributes' => array(),
     '#default_value' => $item['options']['name_display'],
   );
@@ -607,7 +609,7 @@ function campaignion_recent_supporters_field_widget_form(&$form, &$form_state, $
 /**
  * Implements hook_field_info().
  */
-function campaignion_recent_supporters_field_info() {
+function recent_supporters_field_info() {
   $info['recent_supporters'] = array(
     'label' => t('Recent supporters'),
     'description' => t('Allows you to display a recent supporters block.'),
@@ -621,7 +623,7 @@ function campaignion_recent_supporters_field_info() {
 /**
  * Implements hook_field_widget_info().
  */
-function campaignion_recent_supporters_field_widget_info() {
+function recent_supporters_field_widget_info() {
   $info['recent_supporters'] = array(
     'label' => t('Recent supporters'),
     'field types' => array('recent_supporters'),
@@ -637,7 +639,7 @@ function campaignion_recent_supporters_field_widget_info() {
 /**
  * Implements hook_field_formatter_info().
  */
-function campaignion_recent_supporters_field_formatter_info() {
+function recent_supporters_field_formatter_info() {
   $info['recent_supporters'] = array(
     'label' => 'Recent supporters',
     'field types' => array('recent_supporters'),
@@ -648,7 +650,7 @@ function campaignion_recent_supporters_field_formatter_info() {
 /**
  * Implements hook_field_presave().
  */
-function campaignion_recent_supporters_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+function recent_supporters_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
   if ($field['type'] == 'recent_supporters') {
     foreach ($items as &$item) {
       if (is_array($item['options'])) {
@@ -661,7 +663,7 @@ function campaignion_recent_supporters_field_presave($entity_type, $entity, $fie
 /**
  * Implements hook_field_load().
  */
-function campaignion_recent_supporters_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+function recent_supporters_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
   if ($field['type'] == 'recent_supporters') {
     foreach ($entities as $id => $entity) {
       foreach ($items[$id] as &$item) {
@@ -674,7 +676,7 @@ function campaignion_recent_supporters_field_load($entity_type, $entities, $fiel
 /**
  * Implements hook_field_is_empty().
  */
-function campaignion_recent_supporters_field_is_empty($item, $field) {
+function recent_supporters_field_is_empty($item, $field) {
   return FALSE;
 }
 
@@ -682,7 +684,7 @@ function campaignion_recent_supporters_field_is_empty($item, $field) {
  * utility function: returns all field items by field type in array
  * (indexed by field name)
  */
-function campaignion_recent_supporters_field_instances($entity_type, $node, $field_type) {
+function recent_supporters_field_instances($entity_type, $node, $field_type) {
   $instances = field_info_instances($entity_type, $node->type);
   $recent_supporter_fields = array();
   foreach ($instances as $instance) {

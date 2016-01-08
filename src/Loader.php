@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\campaignion_recent_supporters;
+namespace Drupal\recent_supporters;
 
 class Loader {
   protected $backends;
@@ -15,7 +15,7 @@ class Loader {
   }
 
   public function __construct() {
-    $hook = 'campaignion_recent_supporters_backend_info';
+    $hook = 'recent_supporters_backend_info';
     $this->backends = \module_invoke_all($hook);
     drupal_alter($hook, $this->backends);
   }
