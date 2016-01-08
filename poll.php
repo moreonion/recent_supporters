@@ -48,7 +48,6 @@ spl_autoload_register('drupal_autoload_interface');
 require_once dirname(__FILE__) . '/campaignion_recent_supporters.module';
 
 use \Drupal\campaignion_recent_supporters\RequestParams;
-use \Drupal\campaignion_recent_supporters\ActivityBackend;
 
 $params = new RequestParams($_GET);
 if (!$params->isValid()) {
