@@ -347,7 +347,6 @@ function _recent_supporters_block_recent_supporters_all_actions() {
         'showCountry'     => $saved_settings['country_toggle'],
         'showComment'     => $saved_settings['comment_toggle'],
         'visibleCount'    => $saved_settings['visible_count'],
-        'types'           => $types,
         'allActions'      => TRUE,
       ),
     ),

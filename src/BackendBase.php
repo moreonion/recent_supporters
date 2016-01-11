@@ -4,9 +4,6 @@ namespace Drupal\recent_supporters;
 
 /**
  * Loader for recent supporters.
- *
- * ATTENTION: This class will be used from inside a minimal bootstrap.
- * @see poll.php
  */
 abstract class BackendBase {
   /**
@@ -87,22 +84,5 @@ abstract class BackendBase {
     }
 
     return $supporters;
-  }
-
-
-  public function recentOnOneActionJson(RequestParams $params) {
-    $supporters = $this->recentOnOneAction($params);
-    $this->send(array('supporters' => $supporters));
-  }
-
-  public function recentOnAllActionsJson(RequestParams $params) {
-    $supporters = $this->recentOnAllActions($params);
-    $this->send(array('supporters' => $supporters));
-  }
-
-  protected function send($data) {
-    drupal_add_http_header("Access-Control-Allow-Origin", "*");
-    drupal_add_http_header("Access-Control-Allow-Headers", "Content-Type");
-    drupal_json_output($data);
   }
 }

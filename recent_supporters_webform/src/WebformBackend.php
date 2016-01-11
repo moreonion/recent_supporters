@@ -7,9 +7,6 @@ use \Drupal\recent_supporters\RequestParams;
 
 /**
  * Loader for recent supporters.
- *
- * ATTENTION: This class will be used from inside a minimal bootstrap.
- * @see poll.php
  */
 class WebformBackend extends BackendBase {
   public static function label() {
