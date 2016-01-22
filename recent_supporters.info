@@ -6,6 +6,7 @@ dependencies[] = entity
 dependencies[] = libraries
 dependencies[] = polling
 dependencies[] = psr0
+dependencies[] = recent_supporters_webform
 
 stylesheets[all][] = recent-supporters.css
 stylesheets[all][] = flags.css
