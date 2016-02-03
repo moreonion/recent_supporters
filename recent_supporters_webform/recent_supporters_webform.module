@@ -81,6 +81,12 @@ function recent_supporters_webform_webform_submission_insert($node, $submission)
   $dbkey['sid'] = $submission->sid;
   $fields['timestamp'] = $submissionObj->submitted;
 
+  // Optionally get the country from geoip.
+  if (!$fields['country'] && function_exists('geoip_country_code_by_name')) {
+    // Use @, see: https://bugs.php.net/bug.php?id=59753
+    $fields['country'] = @geoip_country_code_by_name($submission->remote_addr);
+  }
+
   db_merge('recent_supporters_webform')
     ->key($dbkey)
     ->fields($fields)
