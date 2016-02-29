@@ -428,6 +428,10 @@ function theme_recent_supporters($variables) {
       }
       $output .= "<li class=\"supporter clearfix $action_type\">\n";
 
+      if ($variables['show_comment'] && !empty($supporter['comment'])) {
+        $output .= "\n<span class=\"comment\">{$supporter['comment']}</span>\n";
+      }
+
       if ($show_country) {
         $country_code = empty($supporter['country']) ? 'no-cc' : $supporter['country'];
         $country_name = $country_code == 'no-cc' ? '' : $countries[$country_code];
@@ -460,10 +464,6 @@ function theme_recent_supporters($variables) {
       $output .= "\n<span class=\"time\" data-timestamp=\"".$supporter['timestamp']."\" title=\"".$supporter['rfc8601']."\">";
       $output .= date('d.m.Y H:i', $supporter['timestamp']);
       $output .= "</span>\n";
-
-      if ($variables['show_comment'] && !empty($supporter['comment'])) {
-        $output .= "\n<span class=\"comment\">{$supporter['comment']}</span>\n";
-      }
 
       $output .= "</li>\n";
     }
