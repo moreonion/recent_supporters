@@ -28,3 +28,12 @@ li.supporter {
 .supporter .time {
   font-style: italic;
 }
+.supporter .comment {
+  display: block;
+}
+.supporter .comment:before {
+  content: open-quote;
+}
+.supporter .comment:after {
+  content: close-quote;
+}
