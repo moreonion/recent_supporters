@@ -325,6 +325,7 @@ function _recent_supporters_block_recent_supporters_all_actions() {
     '#show_comment' => ($saved_settings['comment_toggle'] == '1') ? TRUE : FALSE,
     '#all_actions'  => TRUE,
     '#texts'        => $texts,
+    '#visible_count' => $saved_settings['visible_count'],
   );
 
   // set configured texts in generic recentSupporter setting
@@ -396,10 +397,19 @@ function recent_supporters_theme() {
       'show_country' => FALSE,
       'show_comment' => FALSE,
       'all_actions' => FALSE,
-      'texts' => array()
+      'texts' => array(),
+      'visible_count' => 5,
     ),
   );
   return $theme;
+}
+
+/**
+ * Theme preprocess function for theme_recent_supporters().
+ */
+function recent_supporters_preprocess_recent_supporters(&$variables) {
+  $s = &$variables['supporters'];
+  $s = array_splice($s, 0, $variables['visible_count']);
 }
 
 /**
@@ -685,6 +695,7 @@ function recent_supporters_field_formatter_view($entity_type, $entity, $field, $
         '#show_comment' => (bool) $options['comment_toggle'],
         '#all_actions' => FALSE,
         '#texts' => NULL,
+        '#visible_count' => $options['visible_count'],
       );
 
       // set an unique id to use as key in Drupal.settings array
