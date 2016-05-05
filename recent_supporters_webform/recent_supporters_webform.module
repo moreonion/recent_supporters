@@ -114,7 +114,7 @@ function recent_supporters_webform_webform_submission_delete($node, $submission)
  */
 function recent_supporters_webform_node_delete($node) {
   db_delete('recent_supporters_webform')
-    ->condition('nid', $node->sid)
+    ->condition('nid', $node->nid)
     ->execute();
 }
 
