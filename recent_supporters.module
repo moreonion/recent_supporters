@@ -37,6 +37,14 @@ function recent_supporters_settings() {
 }
 
 /**
+ * Implements hook_countries_alter();
+ */
+function recent_supporters_countries_alter(&$countries) {
+  $countries['TB'] = 'Tibet';
+  $countries['XK'] = 'Kosovo';
+}
+
+/**
  * Implements hook_menu();
  */
 function recent_supporters_menu() {
