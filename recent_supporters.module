@@ -37,6 +37,19 @@ function recent_supporters_settings() {
 }
 
 /**
+ * Implements hook_countries_alter();
+ */
+function recent_supporters_countries_alter(&$countries) {
+  $t = get_t();
+
+  $countries['TB'] = $t('Tibet');
+  $countries['XK'] = $t('Kosovo');
+
+  // Sort the list.
+  natcasesort($countries);
+}
+
+/**
  * Implements hook_menu();
  */
 function recent_supporters_menu() {
