@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Install, uninstall, and update functions for the Recent Supporters Webform module.
+ */
+
+/**
  * Implements hook_schema().
  */
 function recent_supporters_webform_schema() {
@@ -62,4 +67,3 @@ function recent_supporters_webform_update_7101() {
     'type' => 'text',
   ));
 }
-

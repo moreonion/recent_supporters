@@ -1,6 +1,8 @@
 <?php
+
 /**
  * @file
+ * Install, uninstall, and update functions for the Recent Supporters module.
  */
 
 /**
@@ -17,7 +19,7 @@ function recent_supporters_uninstall() {
  */
 function recent_supporters_install() {
   if (module_exists('variable_realm')) {
-    $lang_realm_vars   = variable_get('variable_realm_list_language', array());
+    $lang_realm_vars = variable_get('variable_realm_list_language', array());
     $lang_realm_vars[] = 'recent_supporters_settings_types';
     variable_set('variable_realm_list_language', $lang_realm_vars);
   }
@@ -28,7 +30,7 @@ function recent_supporters_install() {
  */
 function recent_supporters_modules_enabled($modules) {
   if (in_array('variable_realm', $modules)) {
-    $lang_realm_vars   = variable_get('variable_realm_list_language', array());
+    $lang_realm_vars = variable_get('variable_realm_list_language', array());
     $lang_realm_vars[] = 'recent_supporters_settings_types';
     variable_set('variable_realm_list_language', $lang_realm_vars);
   }
@@ -52,10 +54,10 @@ function recent_supporters_enable() {
  */
 function _recent_supporters_define_fields() {
 
-  $field = array (
+  $field = array(
     'global_block_settings' => '1',
     'field_name' => 'recent_supporters',
-    'settings' => array (),
+    'settings' => array(),
     'type' => 'recent_supporters',
     'module' => 'recent_supporters',
     'active' => '1',
@@ -70,18 +72,18 @@ function _recent_supporters_define_fields() {
  * of the recent supporter fields to your content-type.
  */
 function _recent_supporters_create_instances($bundle) {
-  $instance = array (
+  $instance = array(
     'bundle' => $bundle,
     'label' => 'Display a recent supporters box.',
-    'widget' => array (
+    'widget' => array(
       'weight' => '7',
       'type' => 'recent_supporters',
       'module' => 'recent_supporters',
       'active' => 1,
-      'settings' => array (),
+      'settings' => array(),
     ),
-    'display' => array (
-      'default' => array (
+    'display' => array(
+      'default' => array(
         'label' => 'hidden',
         'type' => 'hidden',
       ),
@@ -111,9 +113,8 @@ function recent_supporters_field_schema($field) {
       'not null' => FALSE,
       'default' => 0,
     );
-  return array(
-    'columns' => $columns,
-  );
+    return array(
+      'columns' => $columns,
+    );
   }
 }
-

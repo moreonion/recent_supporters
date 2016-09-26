@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Provides Recent Support webform settings form.
+ */
+
+/**
  * Form callback: Webform backend settings form.
  */
 function recent_supporters_webform_settings_form($form, &$form_state) {
@@ -14,7 +19,13 @@ function recent_supporters_webform_settings_form($form, &$form_state) {
       '#type' => 'select',
       '#title' => t('Maximum age'),
       '#description' => t('The cron job will delete all recent supporter entries older than this.'),
-      '#options' => array(-1 => t('- none -'), 24*36000 => t('1 day'), 7*24*3600 => t('7 days'), 30*24*3600 => t('30 days'), 90*24*3600 => t('90 days')),
+      '#options' => array(
+        -1 => t('- none -'),
+        24 * 36000 => t('1 day'),
+        7 * 24 * 3600 => t('7 days'),
+        30 * 24 * 3600 => t('30 days'),
+        90 * 24 * 3600 => t('90 days'),
+      ),
       '#default_value' => $cron['max_age'],
     ),
     'max_number' => array(
