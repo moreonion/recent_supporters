@@ -53,17 +53,6 @@ function recent_supporters_countries_alter(&$countries) {
  * Implements hook_menu();
  */
 function recent_supporters_menu() {
-  // Serve a localized ISO -> country-name mapping.
-  // If clean URLs are disabled, it will always be served through the menu system.
-  // If clean URLs are enabled and it already exists, PHP will be bypassed.
-  $dir = _recent_supporters_countries_dir();
-  $items[$dir . '/%'] = array(
-    'title' => 'Generate JS country mapping',
-    'page callback' => 'recent_supporters_country_json',
-    'page arguments' => array(count(explode('/', $dir))),
-    'access callback' => TRUE,
-    'type' => MENU_CALLBACK,
-  );
   $items['admin/config/content/recent-supporters'] = array(
     'title' => 'Recent Supporter Settings',
     'page callback' => 'drupal_get_form',
@@ -407,36 +396,47 @@ function _recent_supporters_block_recent_supporters_all_actions() {
     )), 'setting');
 
   if ($saved_settings['country_toggle']) {
-    $dir = _recent_supporters_countries_dir();
-    drupal_add_js($dir . '/' . $GLOBALS['language']->language . '.js', array('scope' => 'footer', 'preprocess' => FALSE));
+    $path = _recent_supporters_country_json_file($GLOBALS['language']->language);
+    drupal_add_js($path, array('scope' => 'footer', 'preprocess' => FALSE));
   }
   return $block;
 }
 
 /**
- * Page callback for country Javascript.
+ * Ensure the existence of a country language file for a language.
+ *
+ * @return string
+ *   Path to the country json file to be used for drupal_add_js() or NULL if the
+ *   country code is not known.
  */
-function recent_supporters_country_json($filename) {
-  $langCode = substr($filename, 0, strlen($filename) - 3);
+function _recent_supporters_country_json_file($langcode) {
   $languages = language_list();
-  if (isset($languages[$langCode])) {
-    $GLOBALS['language'] = $languages[$langCode];
-  }
-  else {
-    return MENU_ACCESS_DENIED;
-  }
-
-  $target = 'public://countries/' . $langCode . '.js';
-  $target_dir = dirname($target);
-  if (!file_prepare_directory($target_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    watchdog('recent_supporters', 'Unable to create directory: !dir.', array('!dir' => $target_dir), WATCHDOG_ERROR);
+  if (!isset($languages[$langcode])) {
     return NULL;
   }
+  $target = 'public://countries/' . $langcode . '.js';
+  if (!file_exists($target)) {
 
-  $countries = country_get_list();
-  $output = 'Drupal.settings.recentSupporters.countries = ' . drupal_json_encode($countries) . ';';
-  file_put_contents($target, $output);
-  file_transfer($target, array('Content-Type' => 'text/javascript', 'Content-Length' => filesize($target)));
+    $target_dir = dirname($target);
+    if (!file_prepare_directory($target_dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+      watchdog('recent_supporters', 'Unable to create directory: !dir.', array('!dir' => $target_dir), WATCHDOG_ERROR);
+      return NULL;
+    }
+
+    // We need to set $GLOBALS['language'] here as country_get_list() doesn't
+    // have a language paremeter.
+    $old_language = $GLOBALS['language'];
+    $GLOBALS['language'] = $languages[$langcode];
+    $countries = country_get_list();
+    $GLOBALS['language'] = $old_language;
+
+    $output = 'Drupal.settings.recentSupporters.countries = ' . drupal_json_encode($countries) . ';';
+    if (file_put_contents($target, $output) === FALSE) {
+      watchdog('recent_supporters', 'Unable to create file: !path.', array('!path' => $target), WATCHDOG_ERROR);
+      return NULL;
+    }
+  }
+  return $target;
 }
 
 /**
@@ -766,8 +766,9 @@ function recent_supporters_field_formatter_view($entity_type, $entity, $field, $
         )), 'setting');
 
       if ($options['country_toggle']) {
-        $dir = _recent_supporters_countries_dir();
-        drupal_add_js($dir . '/' . $langcode . '.js', array('scope' => 'footer', 'preprocess' => FALSE));
+        $lang = $langcode == 'und' ? $GLOBALS['language']->language : $langcode;
+        $path = _recent_supporters_country_json_file($lang);
+        drupal_add_js($path, array('scope' => 'footer', 'preprocess' => FALSE));
       }
       $output[] = $content;
     }
