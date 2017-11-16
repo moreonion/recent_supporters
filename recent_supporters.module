@@ -458,14 +458,6 @@ function recent_supporters_theme() {
 }
 
 /**
- * Theme preprocess function for theme_recent_supporters().
- */
-function recent_supporters_preprocess_recent_supporters(&$variables) {
-  $s = &$variables['supporters'];
-  $s = array_splice($s, 0, $variables['visible_count']);
-}
-
-/**
  * theme function for theme('recent_supporters', $variables).
  */
 function theme_recent_supporters($variables) {
@@ -484,12 +476,17 @@ function theme_recent_supporters($variables) {
     $texts = $variables['texts'];
     $output .= "<div id=\"{$variables['id']}\" class=\"recent-supporters-wrapper\">";
     $output .= "<ul class=\"recent-supporters $all_actions\">\n";
+    $count = 1;
     foreach ($supporters as $supporter) {
       $action_type = "";
       if (!empty($supporter['action_type'])) {
         $action_type = "action-type-" . $supporter['action_type'];
       }
-      $output .= "<li class=\"supporter clearfix $action_type\">\n";
+      $output .= "<li class=\"supporter clearfix $action_type\"";
+      if ($count++ > $variables['visible_count']) {
+        $output .= ' style="display: none;"';
+      }
+      $output .= ">\n";
 
       if ($variables['show_comment'] && !empty($supporter['comment'])) {
         $output .= "\n<span class=\"comment\">{$supporter['comment']}</span>\n";
