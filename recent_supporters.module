@@ -484,7 +484,7 @@ function theme_recent_supporters($variables) {
       }
       $output .= "<li class=\"supporter clearfix $action_type\"";
       if ($count++ > $variables['visible_count']) {
-        $output .= ' style="display: hidden;"';
+        $output .= ' style="display: none;"';
       }
       $output .= ">\n";
 
