@@ -753,7 +753,7 @@ function recent_supporters_field_formatter_view($entity_type, $entity, $field, $
               'cycleSupporters' => $options['cycle_toggle'],
               'showCountry' => $options['country_toggle'],
               'showComment' => $options['comment_toggle'],
-              'visibleCount' => $options['visible_count'],
+              'maxSupportersVisible' => $options['visible_count'],
               'field_name' => $field_name,
               'delta' => $delta,
               'allActions' => FALSE,
