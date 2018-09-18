@@ -18,6 +18,7 @@ abstract class BackendBase {
       'backend' => get_called_class(),
       'limit' => $options['query_limit'],
       'name_display' => $options['name_display'],
+      'comment_toggle' => $options['comment_toggle'],
     );
     if ($node) {
       return new RequestParams($config + array('nid' => $node->nid));
