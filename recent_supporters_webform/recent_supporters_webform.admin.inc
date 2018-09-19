@@ -54,6 +54,10 @@ function recent_supporters_webform_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Country'),
   );
+  $element['comment'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Comment'),
+  );
   foreach ($mapping as $field => $form_keys) {
     $element[$field]['#default_value'] = implode(', ', $form_keys);
   }

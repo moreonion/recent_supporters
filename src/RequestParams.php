@@ -9,6 +9,7 @@ class RequestParams {
     $this->params = $params + array(
       'limit' => 10,
       'name_display' => RECENT_SUPPORTERS_NAME_DISPLAY_DEFAULT,
+      'comment_toggle' => FALSE,
       'hash' => '',
     );
   }
