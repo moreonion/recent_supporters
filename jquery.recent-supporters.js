@@ -265,10 +265,24 @@
       // move last element to top in list and show hide
       // if there is at least one supporter more loaded then shown
       if (supporterElements.length > settings.maxSupportersVisible) {
-        var minHeight = $container.height();
-        $container.css({minHeight: minHeight + 'px'});
-        $('li:visible', $ul).last().slideUp({duration: 200, easing: settings.cycleEasing});
-        supporterElements.last().hide().detach().prependTo($ul).slideDown({duration: 200, easing: settings.cycleEasing});
+        var currentHeight = $container.height();
+        $container.css({
+          // Prevent the container from shrinking while a large supporter cycles out of view.
+          minHeight: currentHeight + 'px',
+          // Set a max-height during the slide up animation to prevent “jumping”.
+          maxHeight: currentHeight + 'px'
+        });
+        $('li:visible', $ul).last().slideUp({
+          duration: 200,
+          easing: settings.cycleEasing,
+          complete: function() {
+            $container.css({maxHeight: ''});
+          }
+        });
+        supporterElements.last().hide().detach().prependTo($ul).slideDown({
+          duration: 200,
+          easing: settings.cycleEasing
+        });
       }
     }
 
